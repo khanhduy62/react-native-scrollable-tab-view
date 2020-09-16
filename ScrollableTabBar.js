@@ -85,26 +85,30 @@ const ScrollableTabBar = createReactClass({
   },
 
   updateTabPanel(position, pageOffset) {
-    const containerWidth = this._containerMeasurements.width;
-    const tabWidth = this._tabsMeasurements[position].width;
-    const nextTabMeasurements = this._tabsMeasurements[position + 1];
-    const nextTabWidth = nextTabMeasurements && nextTabMeasurements.width || 0;
-    const tabOffset = this._tabsMeasurements[position].left;
-    const absolutePageOffset = pageOffset * tabWidth;
-    let newScrollX = tabOffset + absolutePageOffset;
-
-    // center tab and smooth tab change (for when tabWidth changes a lot between two tabs)
-    newScrollX -= (containerWidth - (1 - pageOffset) * tabWidth - pageOffset * nextTabWidth) / 2;
-    newScrollX = newScrollX >= 0 ? newScrollX : 0;
-
-    if (Platform.OS === 'android') {
-      this._scrollView.scrollTo({x: newScrollX, y: 0, animated: false, });
-    } else {
-      const rightBoundScroll = this._tabContainerMeasurements.width - (this._containerMeasurements.width);
-      newScrollX = newScrollX > rightBoundScroll ? rightBoundScroll : newScrollX;
-      this._scrollView.scrollTo({x: newScrollX, y: 0, animated: false, });
+    try {
+      const containerWidth = this._containerMeasurements.width;
+      const tabWidth = this._tabsMeasurements[position].width;
+      const nextTabMeasurements = this._tabsMeasurements[position + 1];
+      const nextTabWidth = nextTabMeasurements && nextTabMeasurements.width || 0;
+      const tabOffset = this._tabsMeasurements[position].left;
+      const absolutePageOffset = pageOffset * tabWidth;
+      let newScrollX = tabOffset + absolutePageOffset;
+  
+      // center tab and smooth tab change (for when tabWidth changes a lot between two tabs)
+      newScrollX -= (containerWidth - (1 - pageOffset) * tabWidth - pageOffset * nextTabWidth) / 2;
+      newScrollX = newScrollX >= 0 ? newScrollX : 0;
+  
+      if (Platform.OS === 'android') {
+          this._scrollView && this._scrollView.scrollTo({x: newScrollX, y: 0, animated: false, });
+      } else {
+          const rightBoundScroll = this._tabContainerMeasurements.width - (this._containerMeasurements.width);
+          newScrollX = newScrollX > rightBoundScroll ? rightBoundScroll : newScrollX;
+          if (newScrollX !== null && this._scrollView) {
+            this._scrollView && this._scrollView.scrollTo({x: newScrollX, y: 0, animated: false, });
+          }
+      }
+    } catch (error) {
     }
-
   },
 
   updateTabUnderline(position, pageOffset, tabCount) {
@@ -180,7 +184,7 @@ const ScrollableTabBar = createReactClass({
         scrollsToTop={false}
       >
         <View
-          style={[styles.tabs, {width: this.state._containerWidth, }, this.props.tabsContainerStyle, ]}
+          style={[styles.tabs, this.props.tabsContainerStyle]}
           ref={'tabContainer'}
           onLayout={this.onTabContainerLayout}
         >
