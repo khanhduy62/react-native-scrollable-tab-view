@@ -135,20 +135,25 @@ const ScrollableTabView = createReactClass({
   },
 
   goToPage(pageNumber) {
-    if (Platform.OS === 'ios') {
-      const offset = pageNumber * this.state.containerWidth;
-      if (this.scrollView) {
-        this.scrollView.getNode().scrollTo({x: offset, y: 0, animated: !this.props.scrollWithoutAnimation, });
-      }
-    } else {
-      if (this.scrollView) {
-        if (this.props.scrollWithoutAnimation) {
-          this.scrollView.getNode().setPageWithoutAnimation(pageNumber);
-        } else {
-          this.scrollView.getNode().setPage(pageNumber);
+    try {
+      if (Platform.OS === 'ios') {
+        const offset = pageNumber * this.state.containerWidth;
+        if (this.scrollView) {
+          this.scrollView.scrollTo({x: offset, y: 0, animated: !this.props.scrollWithoutAnimation, });
+        }
+      } else {
+        if (this.scrollView) {
+          if (this.props.scrollWithoutAnimation) {
+            this.scrollView.setPageWithoutAnimation(pageNumber);
+          } else {
+            this.scrollView.setPage(pageNumber);
+          }
         }
       }
+    } catch (error) {
+      
     }
+   
 
     const currentPage = this.state.currentPage;
     this.updateSceneKeys({
